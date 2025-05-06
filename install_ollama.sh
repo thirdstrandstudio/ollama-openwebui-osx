@@ -335,6 +335,19 @@ EOS
 #!/bin/bash
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; BLUE='\033[0;34m'; CYAN='\033[0;36m'; NC='\033[0m'
 
+# Ensure Ollama is running
+if ! pgrep -x "ollama" > /dev/null; then
+    echo -e "${YELLOW}Ollama is not running. Starting Ollama...${NC}"
+    nohup ollama serve > /dev/null 2>&1 &
+    sleep 3
+fi
+
+# Check Ollama API
+if ! curl -s http://localhost:11434/api/tags > /dev/null; then
+    echo -e "${RED}Ollama API not responding. Please ensure Ollama is installed and accessible.${NC}"
+    exit 1
+fi
+
 press_any_key() {
     echo
     read -n 1 -s -r -p "Press any key to continue..."
@@ -350,14 +363,27 @@ display_models() {
 }
 
 download_model() {
-    local model_name="$1"
-    echo -e "${BLUE}Downloading model: ${model_name}${NC}"
-    ollama pull "$model_name"
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ Model $model_name downloaded successfully.${NC}"
-    else
-        echo -e "${RED}✗ Failed to download model $model_name.${NC}"
+    local model_name=$1
+    local available_space=$(df -k "$HOME/.ollama" | awk 'NR==2 {print int($4 / 1024 / 1024)}')
+    local estimated_size=5
+
+    case $model_name in
+        *70b*) estimated_size=40 ;;
+        *34b*) estimated_size=20 ;;
+        *13b*) estimated_size=10 ;;
+        *7b*) estimated_size=7 ;;
+        *) estimated_size=5 ;;
+    esac
+
+    if (( available_space < estimated_size )); then
+        echo -e "${RED}⚠️  Low disk space. Only ${available_space}GB available, ${estimated_size}GB required for ${model_name}.${NC}"
+        read -p "Continue anyway? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then return; fi
     fi
+
+    echo -e "${BLUE}Downloading ${model_name}...${NC}"
+    ollama pull "$model_name"
     press_any_key
 }
 
@@ -397,26 +423,68 @@ update_models() {
 show_menu() {
     while true; do
         clear
-        echo -e "${CYAN}Ollama Model Manager${NC}"
-        echo -e "${BLUE}1) Install Llama 3 (8B)"
-        echo -e "2) Install Mistral"
-        echo -e "3) Install CodeLlama:13b"
-        echo -e "4) Install Custom Model"
-        echo -e "5) Remove a Model"
-        echo -e "6) Update All Models"
-        echo -e "7) List Installed Models"
-        echo -e "8) Exit${NC}"
-        read -p "Choose an option: " choice
+        echo -e "${CYAN}==== Installed Models ====${NC}"
+        ollama list || echo "No models installed."
+        echo
+        echo -e "${BLUE}==== Model Installation Menu ====${NC}"
+        echo -e "${GREEN}Mistral Family:${NC}"
+        echo "  1) mistral"
+        echo "  2) mistral-openorca"
+        echo "  3) mistral-instruct"
+        echo
+        echo -e "${GREEN}Llama 3 Family:${NC}"
+        echo "  4) llama3"
+        echo "  5) llama3:8b-instruct"
+        echo "  6) llama3:70b"
+        echo
+        echo -e "${GREEN}Code Models:${NC}"
+        echo "  7) codellama:7b"
+        echo "  8) codellama:13b"
+        echo "  9) codellama:34b"
+        echo
+        echo -e "${GREEN}Multimodal Models:${NC}"
+        echo " 10) llava"
+        echo " 11) bakllava"
+        echo
+        echo -e "${GREEN}Specialized Models:${NC}"
+        echo " 12) neural-chat"
+        echo " 13) orca-mini"
+        echo " 14) phi"
+        echo " 15) stablelm-zephyr"
+        echo " 16) gemma:2b"
+        echo " 17) gemma:7b"
+        echo
+        echo -e "${BLUE}Other Actions:${NC}"
+        echo " 18) Install custom model"
+        echo " 19) Remove a model"
+        echo " 20) Update all models"
+        echo " 21) Exit"
+        echo
+
+        read -p "Select an option: " choice
         case $choice in
-            1) download_model "llama3:8b-instruct" ;;
-            2) download_model "mistral" ;;
-            3) download_model "codellama:13b" ;;
-            4) custom_model ;;
-            5) remove_model ;;
-            6) update_models ;;
-            7) display_models; press_any_key ;;
-            8) exit 0 ;;
-            *) echo -e "${RED}Invalid option.${NC}"; press_any_key ;;
+            1) download_model "mistral" ;;
+            2) download_model "mistral-openorca" ;;
+            3) download_model "mistral-instruct" ;;
+            4) download_model "llama3" ;;
+            5) download_model "llama3:8b-instruct" ;;
+            6) download_model "llama3:70b" ;;
+            7) download_model "codellama:7b" ;;
+            8) download_model "codellama:13b" ;;
+            9) download_model "codellama:34b" ;;
+            10) download_model "llava" ;;
+            11) download_model "bakllava" ;;
+            12) download_model "neural-chat" ;;
+            13) download_model "orca-mini" ;;
+            14) download_model "phi" ;;
+            15) download_model "stablelm-zephyr" ;;
+            16) download_model "gemma:2b" ;;
+            17) download_model "gemma:7b" ;;
+            18) custom_model ;;
+            19) remove_model ;;
+            20) update_models ;;
+            21) exit 0 ;;
+            *) echo -e "${RED}Invalid choice. Try again.${NC}"; press_any_key ;;
         esac
     done
 }
