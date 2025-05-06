@@ -25,23 +25,24 @@ SCRIPT_PATH="$TEMP_DIR/install_ollama.sh"
 
 echo -e "${BLUE}Downloading installation script...${NC}"
 
-# Download the actual installer script
-curl -fsSL "https://raw.githubusercontent.com/thirdstrandstudio/ollama-openwebui-osx/refs/heads/main/install_ollama.sh" -o "$SCRIPT_PATH"
-if [[ $? -ne 0 || ! -s "$SCRIPT_PATH" ]]; then
+curl -fsSL -o "$SCRIPT_PATH" "https://raw.githubusercontent.com/thirdstrandstudio/ollama-openwebui-osx/refs/heads/main/install_ollama.sh"
+if [[ ! -s "$SCRIPT_PATH" ]]; then
     echo -e "${RED}Error: Failed to download the installation script.${NC}"
     echo -e "${YELLOW}Instead, you can download the script manually and run it with:${NC}"
-    echo -e "${BLUE}bash ~/Downloads/install_ollama.sh${NC}"
+    echo -e "bash ~/Downloads/install_ollama.sh"
     exit 1
 fi
 
+# Make it executable
 chmod +x "$SCRIPT_PATH"
 
 echo -e "${GREEN}Installation script downloaded successfully.${NC}"
-echo -e "${YELLOW}Running the installation script...${NC}"
+echo -e "${YELLOW}Running the installation script interactively...${NC}"
 echo
 
-# Run the installation script with interactive shell input support
-bash < "$SCRIPT_PATH"
+# Run interactively
+bash "$SCRIPT_PATH"
 
-# Optional: Clean up
+# Clean up
+echo -e "${BLUE}Cleaning up temporary files...${NC}"
 rm -rf "$TEMP_DIR"
