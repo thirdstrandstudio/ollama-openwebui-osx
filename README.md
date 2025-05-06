@@ -26,7 +26,7 @@ This repository contains scripts to automate the installation of Ollama and Open
 To install Ollama and Open WebUI on your Mac, open Terminal and run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yourusername/ollama-mac-installer/main/install_wrapper.sh | bash
+curl -fsSL https://raw.githubusercontent.com/thirdstrandstudio/ollama-openwebui-osx/refs/heads/main/install_wrapper.sh | bash
 ```
 
 Or, you can download this repository, navigate to its directory, and run:
