@@ -24,7 +24,7 @@ TEMP_DIR=$(mktemp -d)
 SCRIPT_PATH="$TEMP_DIR/install_ollama.sh"
 
 echo -e "${BLUE}Downloading installation script...${NC}"
-curl -s -o "$SCRIPT_PATH" "curl -s -o "$SCRIPT_PATH" "https://raw.githubusercontent.com/thirdstrandstudio/ollama-openwebui-osx/main/install_ollama.sh"" || {
+curl -s -o "$SCRIPT_PATH" "https://raw.githubusercontent.com/thirdstrandstudio/ollama-openwebui-osx/main/install_ollama.sh"
     echo -e "${RED}Error: Failed to download the installation script.${NC}"
     echo -e "${YELLOW}Instead, you can download the script manually and run it with:${NC}"
     echo -e "bash ~/Downloads/install_ollama.sh"
