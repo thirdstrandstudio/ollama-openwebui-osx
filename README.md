@@ -26,7 +26,9 @@ This repository contains scripts to automate the installation of Ollama and Open
 To install **Ollama + Open WebUI**, run the following in your terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/thirdstrandstudio/ollama-openwebui-osx/refs/heads/main/install_wrapper.sh | bash
+curl -fsSL https://raw.githubusercontent.com/thirdstrandstudio/ollama-openwebui-osx/main/install_wrapper.sh -o install_wrapper.sh;
+chmod +x install_wrapper.sh;
+./install_wrapper.sh
 ````
 
 This will:
